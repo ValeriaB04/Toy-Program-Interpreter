@@ -1,34 +1,100 @@
-
+from typing import Union, Dict
 class Interpreter: 
     def __init__(self):
-        self.variables = {}
-        self.lines = []
-        self.current_line = 0
-
-    # Convert expression string into a value 
-    def eval_expr(self,expr):
+        self.env: Dict[str, Union[int, bool, str]] = {}
+        self.lines = {}
+        self.current_line = 1
+    
+    def evaluate_expression(self,expr: str) -> Union[int, bool, str]:
       try:
-        return eval(expr, {}, self.variable)
+          for variable in self.env: 
+              expr = expr.replace(variable, str(self.env[variable]))
+          return eval(expr)
       except Exception as e: 
         print(f"Error evaluating expression '{expr}': {e}")
         return 
-
-    # Assign a variable in the environment 
-    def assign_variable(self,key,value):
+          
+    def assign_variable(self, value: str, key: int) -> dict: 
         self.variables[key] = value
         print(self.variables)
 
-    # let print_stmt: str -> None
-    def print_stmt(self, expr) -> None:
-      value = self.eval_expr(expr)
-      print(value) 
-
-    # Execute a while loop given a condition and a start line to loop back to
-    def while_loop(self, condition, start_line, current_line):
-        if self.eval_expr(condition):
-            return start_line  
-        else:
-            return current_line + 1
+    def print_stmt(self, statement: str):
+        expr = statement.split("print", 1)
+        value = self.evaluate_expression(expr)
+        print(value) 
         
-interpreter = Interpreter()
-interpreter.assign_variable("hi",1)
+    def if_stmt(self, statement: str):
+        try:
+            condition = statement.split("if", 1)
+            condition = condition.strip()
+            result = self.evaluate_expr(condition)
+            print(bool(result))
+        except Exception as e:
+            print(f"Invalid if statement: {e}")
+    
+
+    def while_loop(self, statement:str):
+        return  
+
+    def goto(self, statement:str):
+        line_number = statement.split("goto")
+        target = int(line_number)
+        if target in self.lines:
+            self.current_line = target 
+        else: 
+            print(f"Line {target} does not exist.")
+
+    def run_statement(self, statement: str):
+        if statement.startswith("let"):
+            self.assign_variable(statement)
+        elif statement.startswith("print"):
+            self.print_stmt(statement)
+        elif statement.startswith("if"):
+            self.if_stmt(statement)
+        elif statement.startswith("while"):
+            self.while_loop(statement)
+        elif statement.startswith("goto"):
+            self.goto(statement)
+        else:
+            print(f"The statement is incorrect or invalid: {statement}")
+    
+    def load_program(self):
+        print("Enter your program line by line. Type 'END' to finish.")
+        line_number = 1
+        while True:
+            line = input(f"Line {line_number}: ")
+            if line.strip().upper() == "END":
+                break
+            self.lines[line_number] = line
+            line_number += 1
+
+    def run_program(self):
+        self.current_line = 1
+        while self.current_line in self.lines:
+            statement = self.lines[self.current_line]
+            self.run_statement(statement)
+            self.current_line += 1
+
+    def main_menu(self):
+        while True:
+            print("\nToy Language Interpreter")
+            print("1. Load program")
+            print("2. Run program")
+            print("3. View environment")
+            print("4. Exit")
+            choice = input("Select an option: ")
+
+            if choice == '1':
+                self.load_program()
+            elif choice == '2':
+                self.run_program()
+            elif choice == '3':
+                self.display_environment()
+            elif choice == '4':
+                break
+            else:
+                print("Invalid option. Please select 1-4.")
+
+if __name__ == "__main__":
+    interpreter = Interpreter()
+    interpreter.main_menu()
