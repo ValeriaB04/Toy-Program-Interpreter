@@ -1,9 +1,12 @@
 from typing import Union, Dict
+import sys
 
 class Interpreter:
+    #variables: dict = {}
     env: Dict[str, Union[int, bool, str]] = {}
     lines: Dict[int, str] = {}
     current_line: int = 1
+    #current_line = 0 
 
     @classmethod
     def evaluate_expression(cls, expr: str) -> Union[int, bool, str]:
@@ -38,7 +41,11 @@ class Interpreter:
             print(value)
         except Exception as e:
             print("Error in print statement:", e)
-
+    
+    # let x = 3
+    # let y = 6
+    # if x > y 
+    # output: Condition is False
     @classmethod
     def if_stmt(cls, statement: str):
         condition = statement[2:].strip()
@@ -50,7 +57,10 @@ class Interpreter:
             print("Condition is False")
         else:
             print(f"Condition did not evaluate to True or False: {result}")
-
+            
+    # ? not sure if its ideal - input:
+    # let x = 0 
+    # while x < 5: let x = x + 1         
     @classmethod
     def while_loop(cls, statement: str):
         try:
@@ -71,49 +81,67 @@ class Interpreter:
             cls.current_line = target
         else:
             print(f"Line {target} does not exist.")
-
+    
+    # DONE - declarative
     @classmethod
     def run_statement(cls, statement: str):
-        if statement.startswith("let"):
-            cls.assign_variable(statement)
-        elif statement.startswith("print"):
-            cls.print_stmt(statement)
-        elif statement.startswith("if"):
-            cls.if_stmt(statement)
-        elif statement.startswith("while"):
-            cls.while_loop(statement)
-        elif statement.startswith("goto"):
-            cls.goto(statement)
-        else:
+        commands = {
+            "let": cls.assign_variable,
+            "print": cls.print_stmt,
+            "if": cls.if_stmt,
+            "while": cls.while_loop,
+            "goto": cls.goto
+        }
+    
+        matched = False
+        for keyword, function_to_call in commands.items():
+            if statement.strip().startswith(keyword):
+                function_to_call(statement)
+                matched = True
+                break
+   
+        if not matched:
             print(f"Unknown statement: {statement}")
-
+     
+     # DONE - declarative      
     @classmethod
     def load_program(cls):
         print("Enter your program line by line. Type 'END' to finish.")
         line_number = 1
-        while True:
-            line = input(f"Line {line_number}: ")
-            if line.strip().upper() == "END":
-                break
-            cls.lines[line_number] = line
-            line_number += 1
+        finished = False
+    
+        while not finished:
+            line = input(f"Line {line_number}: ").strip()
+            if line.upper() == "END":
+                finished = True
+            else:
+                cls.lines[line_number] = line
+                line_number += 1
 
     @classmethod
-    def run_program(cls):
+    def execute_program(cls):
         cls.current_line = 1
         while cls.current_line in cls.lines:
             statement = cls.lines[cls.current_line]
             cls.run_statement(statement)
             cls.current_line += 1
-
+            
     @classmethod
     def view_environment(cls):
         print("\nCurrent Environment:")
         for k, v in cls.env.items():
             print(f"{k} = {v}")
-
+    
+    # DONE - declarative
     @classmethod
     def main_menu(cls):
+        menu_actions = {
+            '1': lambda: cls.load_program(),
+            '2': lambda: cls.execute_program(),
+            '3': lambda: cls.view_environment(),
+            '4': lambda: sys.exit()
+        }
+
         while True:
             print("\nToy Language Interpreter")
             print("1. Load program")
@@ -121,15 +149,9 @@ class Interpreter:
             print("3. View environment")
             print("4. Exit")
             choice = input("Select an option: ")
-
-            if choice == '1':
-                cls.load_program()
-            elif choice == '2':
-                cls.run_program()
-            elif choice == '3':
-                cls.view_environment()
-            elif choice == '4':
-                break
+            action = menu_actions.get(choice)
+            if action:
+                action()
             else:
                 print("Invalid option. Please select 1-4.")
 
