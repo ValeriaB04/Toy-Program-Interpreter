@@ -57,21 +57,6 @@ class Interpreter:
         
         print(cond.get(result, f"Condition did not evaluate to True or False: {result}"))
             
-    # ? not sure if its ideal - input:
-    # let x = 0 
-    # while x < 5: let x = x + 1         
-    @classmethod
-    def while_loop1(cls, statement: str):
-        try:
-            parts = statement.split(":", 1)
-            condition_part = parts[0]
-            cond = parts[1]
-            condition = condition_part.replace("while", "", 1).strip()
-            while cls.evaluate_expression(condition):
-                cls.run_statement(cond.strip())
-        except Exception as e:
-            print("Error in while loop: " + str(e))
-            
     # DONE - Partially         
     @classmethod
     def while_loop(cls, statement: str):
