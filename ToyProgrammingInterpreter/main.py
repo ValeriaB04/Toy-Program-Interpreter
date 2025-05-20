@@ -7,7 +7,8 @@ class Interpreter:
     lines: Dict[int, str] = {}
     current_line: int = 1
     #current_line = 0 
-
+    
+    # Partially Declarative
     @classmethod
     def evaluate_expression(cls, expr: str) -> Union[int, bool, str]:
         try:
@@ -17,9 +18,10 @@ class Interpreter:
         except Exception as e:
             print(f"Error evaluating expression '{expr}': {e}")
             return None
-
+        
+    # Partially Declarative
     @classmethod
-    def assign_variable1(cls, statement: str):
+    def assign_variable(cls, statement: str):
         try:
             parts = statement.split("let", 1)
             rest = parts[1]
@@ -59,7 +61,7 @@ class Interpreter:
     # let x = 0 
     # while x < 5: let x = x + 1         
     @classmethod
-    def while_loop(cls, statement: str):
+    def while_loop1(cls, statement: str):
         try:
             parts = statement.split(":", 1)
             condition_part = parts[0]
@@ -69,27 +71,29 @@ class Interpreter:
                 cls.run_statement(cond.strip())
         except Exception as e:
             print("Error in while loop: " + str(e))
+            
+    # DONE - Partially         
+    @classmethod
+    def while_loop(cls, statement: str):
+        if ":" not in statement:
+            print("Missing ':' in while statement")
+            return
+    
+        condition_part, body_part = statement.split(":", 1)
+        condition = condition_part.replace("while", "", 1).strip()
+        body = body_part.strip()
+    
+        condition_result = cls.evaluate_expression(condition)
+        while condition_result:
+            cls.run_statement(body)
+            condition_result = cls.evaluate_expression(condition)
 
+    # DONE - declarative
     @classmethod
     def goto(cls, statement: str):
         line_number = statement.split("goto")[1]
         target = int(line_number.strip())
-        if target in cls.lines:
-            cls.current_line = target
-        else:
-            print(f"Line {target} does not exist.")
-            
-    @classmethod
-    def goto1(cls, statement: str):
-        keyword = "goto"
-        if statement.startswith(keyword):
-            target_str = statement[len(keyword):].strip()
-            target = int(target_str)
-            
-            if target in cls.lines:
-                cls.current_line = target
-            else:
-                print(f"Line {target} does not exist.")
+        target = [cls.current_line if target in cls.lines else print(f"Line {target} does not exist.")]
 
     # DONE - declarative
     @classmethod
@@ -127,15 +131,15 @@ class Interpreter:
             else:
                 cls.lines[line_number] = line
                 line_number += 1
-
+    
     @classmethod
     def execute_program(cls):
-        cls.current_line = 1
-        while cls.current_line in cls.lines:
-            statement = cls.lines[cls.current_line]
+        for line_number in sorted(cls.lines):
+            statement = cls.lines[line_number]
             cls.run_statement(statement)
-            cls.current_line += 1
+
             
+    # No change - just Print        
     @classmethod
     def view_environment(cls):
         print("\nCurrent Environment:")
