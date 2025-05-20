@@ -2,7 +2,7 @@ from typing import Union, Dict
 import sys
 
 class Interpreter:
-    #variables: dict = {}
+    variables: dict = {}
     env: Dict[str, Union[int, bool, str]] = {}
     lines: Dict[int, str] = {}
     current_line: int = 1
