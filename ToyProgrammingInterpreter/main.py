@@ -19,7 +19,7 @@ class Interpreter:
             return None
 
     @classmethod
-    def assign_variable(cls, statement: str):
+    def assign_variable1(cls, statement: str):
         try:
             parts = statement.split("let", 1)
             rest = parts[1]
@@ -32,31 +32,28 @@ class Interpreter:
                 print(var_name + " assigned value " + str(value))
         except Exception as e:
             print("Error in assignment: " + str(e))
-
+            
+    # DONE - declarative         
     @classmethod
     def print_stmt(cls, statement: str):
-        try:
-            expr = statement.split("print", 1)[1].strip()
-            value = cls.evaluate_expression(expr)
-            print(value)
-        except Exception as e:
-            print("Error in print statement:", e)
-    
-    # let x = 3
-    # let y = 6
-    # if x > y 
-    # output: Condition is False
+        keyword = "print"
+        expr = statement[len(keyword):].strip() if statement.startswith(keyword) else None
+        value = cls.evaluate_expression(expr) if expr else None
+        output = value if value is not None else f"Error evaluating expression: '{expr}'"
+        print(output)
+
+    # DONE - declarative 
     @classmethod
     def if_stmt(cls, statement: str):
-        condition = statement[2:].strip()
+        condition = statement[len("if"):].strip()
         result = cls.evaluate_expression(condition)
-
-        if result is True:
-            print("Condition is True")
-        elif result is False:
-            print("Condition is False")
-        else:
-            print(f"Condition did not evaluate to True or False: {result}")
+    
+        cond = {
+            True: "Condition is True",
+            False: "Condition is False",
+        }
+        
+        print(cond.get(result, f"Condition did not evaluate to True or False: {result}"))
             
     # ? not sure if its ideal - input:
     # let x = 0 
@@ -75,13 +72,25 @@ class Interpreter:
 
     @classmethod
     def goto(cls, statement: str):
-        line_number = statement.split("goto")
+        line_number = statement.split("goto")[1]
         target = int(line_number.strip())
         if target in cls.lines:
             cls.current_line = target
         else:
             print(f"Line {target} does not exist.")
-    
+            
+    @classmethod
+    def goto1(cls, statement: str):
+        keyword = "goto"
+        if statement.startswith(keyword):
+            target_str = statement[len(keyword):].strip()
+            target = int(target_str)
+            
+            if target in cls.lines:
+                cls.current_line = target
+            else:
+                print(f"Line {target} does not exist.")
+
     # DONE - declarative
     @classmethod
     def run_statement(cls, statement: str):
@@ -102,6 +111,7 @@ class Interpreter:
    
         if not matched:
             print(f"Unknown statement: {statement}")
+            
      
      # DONE - declarative      
     @classmethod
