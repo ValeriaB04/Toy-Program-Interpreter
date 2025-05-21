@@ -2,13 +2,10 @@ from typing import Union, Dict
 import sys
 
 class Interpreter:
-    variables: dict = {}
     env: Dict[str, Union[int, bool, str]] = {}
     lines: Dict[int, str] = {}
     current_line: int = 1
-    #current_line = 0 
     
-    # Partially Declarative
     @classmethod
     def evaluate_expression(cls, expr: str) -> Union[int, bool, str]:
         try:
@@ -19,7 +16,6 @@ class Interpreter:
             print(f"Error evaluating expression '{expr}': {e}")
             return None
         
-    # Partially Declarative
     @classmethod
     def assign_variable(cls, statement: str):
         try:
@@ -34,8 +30,7 @@ class Interpreter:
                 print(var_name + " assigned value " + str(value))
         except Exception as e:
             print("Error in assignment: " + str(e))
-            
-    # DONE - declarative         
+                    
     @classmethod
     def print_stmt(cls, statement: str):
         keyword = "print"
@@ -44,7 +39,6 @@ class Interpreter:
         output = value if value is not None else f"Error evaluating expression: '{expr}'"
         print(output)
 
-    # DONE - declarative 
     @classmethod
     def if_stmt(cls, statement: str):
         condition = statement[len("if"):].strip()
@@ -54,8 +48,7 @@ class Interpreter:
             False: "Condition is False",
         }
         print(cond.get(result, f"Condition did not evaluate to True or False: {result}"))
-                      
-    # DONE - Partially         
+        
     @classmethod
     def while_loop(cls, statement: str):
         match ":" in statement:
@@ -68,14 +61,12 @@ class Interpreter:
             case False:
                 print("Missing ':' in while statement")
 
-    # DONE - declarative
     @classmethod
     def goto(cls, statement: str):
         line_number = statement.split("goto")[1]
         target = int(line_number.strip())
         target = [cls.current_line if target in cls.lines else print(f"Line {target} does not exist.")]
 
-    # DONE - declarative
     @classmethod
     def run_statement(cls, statement: str):
         match statement.strip().split()[0]: 
@@ -91,8 +82,7 @@ class Interpreter:
                 cls.goto(statement)
             case _:
                 print(f"Unknown statement: {statement}")
-            
-     # DONE - declarative      
+    
     @classmethod
     def load_program(cls):
         print("Enter your program line by line. Type 'END' to finish.")
@@ -110,15 +100,13 @@ class Interpreter:
     def execute_program(cls):
         statements = [(num, cls.lines[num]) for num in sorted(cls.lines)]
         [cls.run_statement(stmt) for _, stmt in statements]
-
-    # No change - just Print        
+      
     @classmethod
     def view_environment(cls):
         print("\nCurrent Environment:")
         for k, v in cls.env.items():
             print(f"{k} = {v}")
-    
-    # DONE - declarative
+
     @classmethod
     def main_menu(cls):
         menu_actions = {
