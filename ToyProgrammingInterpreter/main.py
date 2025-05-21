@@ -49,29 +49,24 @@ class Interpreter:
     def if_stmt(cls, statement: str):
         condition = statement[len("if"):].strip()
         result = cls.evaluate_expression(condition)
-    
         cond = {
             True: "Condition is True",
             False: "Condition is False",
         }
-        
         print(cond.get(result, f"Condition did not evaluate to True or False: {result}"))
-            
+                      
     # DONE - Partially         
     @classmethod
     def while_loop(cls, statement: str):
-        if ":" not in statement:
-            print("Missing ':' in while statement")
-            return
-    
-        condition_part, body_part = statement.split(":", 1)
-        condition = condition_part.replace("while", "", 1).strip()
-        body = body_part.strip()
-    
-        condition_result = cls.evaluate_expression(condition)
-        while condition_result:
-            cls.run_statement(body)
-            condition_result = cls.evaluate_expression(condition)
+        match ":" in statement:
+            case True:
+                condition_part, body_part = statement.split(":", 1)
+                condition = condition_part.replace("while", "", 1).strip()
+                body = body_part.strip()
+                while cls.evaluate_expression(condition):
+                    cls.run_statement(body)
+            case False:
+                print("Missing ':' in while statement")
 
     # DONE - declarative
     @classmethod
@@ -83,32 +78,26 @@ class Interpreter:
     # DONE - declarative
     @classmethod
     def run_statement(cls, statement: str):
-        commands = {
-            "let": cls.assign_variable,
-            "print": cls.print_stmt,
-            "if": cls.if_stmt,
-            "while": cls.while_loop,
-            "goto": cls.goto
-        }
-    
-        matched = False
-        for keyword, function_to_call in commands.items():
-            if statement.strip().startswith(keyword):
-                function_to_call(statement)
-                matched = True
-                break
-   
-        if not matched:
-            print(f"Unknown statement: {statement}")
+        match statement.strip().split()[0]: 
+            case "let":
+                cls.assign_variable(statement)
+            case "print":
+                cls.print_stmt(statement)
+            case "if":
+                cls.if_stmt(statement)
+            case "while":
+                cls.while_loop(statement)
+            case "goto":
+                cls.goto(statement)
+            case _:
+                print(f"Unknown statement: {statement}")
             
-     
      # DONE - declarative      
     @classmethod
     def load_program(cls):
         print("Enter your program line by line. Type 'END' to finish.")
         line_number = 1
         finished = False
-    
         while not finished:
             line = input(f"Line {line_number}: ").strip()
             if line.upper() == "END":
@@ -119,11 +108,9 @@ class Interpreter:
     
     @classmethod
     def execute_program(cls):
-        for line_number in sorted(cls.lines):
-            statement = cls.lines[line_number]
-            cls.run_statement(statement)
+        statements = [(num, cls.lines[num]) for num in sorted(cls.lines)]
+        [cls.run_statement(stmt) for _, stmt in statements]
 
-            
     # No change - just Print        
     @classmethod
     def view_environment(cls):
