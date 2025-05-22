@@ -9,7 +9,7 @@ class Interpreter:
     Env = Dict[str, Union[int, bool, str]]
     Lines = Dict[int, str]
 
-     # evaluate_expression(expr: str, env: Env) -> Optional[Union[int, bool, str]]:
+    # evaluate_expression(expr: str, env: Env) -> Optional[Union[int, bool, str]]:
     #     Evaluates an expression using the given environment.
     @staticmethod
     def evaluate_expression(expr: str, env: Env) -> Optional[Union[int, bool, str]]:
@@ -106,24 +106,25 @@ class Interpreter:
     #     Executes a single statement and returns the updated environment.
     @staticmethod
     def run_statement(statement: str, env: Env, lines: Lines) -> Env:
-        """Executes a single statement."""
+        """Executes a single statement using match-case."""
         command = statement.strip().split()[0]
-        if command == "let":
-            return Interpreter.assign_variable(statement, env)
-        elif command == "print":
-            Interpreter.print_stmt(statement, env)
-            return env
-        elif command == "if":
-            Interpreter.if_stmt(statement, env)
-            return env
-        elif command == "while":
-            return Interpreter.while_loop(statement, env, lines)
-        elif command == "goto":
-            return env
-        else:
-            print(f"Unknown statement: {statement}")
-            return env
-        
+        match command:
+            case "let":
+                return Interpreter.assign_variable(statement, env)
+            case "print":
+                Interpreter.print_stmt(statement, env)
+                return env
+            case "if":
+                Interpreter.if_stmt(statement, env)
+                return env
+            case "while":
+                return Interpreter.while_loop(statement, env, lines)
+            case "goto":
+                return env
+            case _:
+                print(f"Unknown statement: {statement}")
+                return env
+            
     # execute_program(lines: Lines, env: Env) -> Env:
     #     Runs the entire program from the provided lines and environment.
     @staticmethod
@@ -193,16 +194,17 @@ class Interpreter:
             print("4. Exit")
             choice = input("Select an option: ")
 
-            if choice == '1':
-                lines = Interpreter.load_program()
-            elif choice == '2':
-                env = Interpreter.execute_program(lines, env)
-            elif choice == '3':
-                Interpreter.view_environment(env)
-            elif choice == '4':
-                sys.exit()
-            else:
-                print("Invalid option. Please select 1-4.")
+            match choice:
+                case '1':
+                    lines = Interpreter.load_program()
+                case '2':
+                    env = Interpreter.execute_program(lines, env)
+                case '3':
+                    Interpreter.view_environment(env)
+                case '4':
+                    sys.exit()
+                case _:
+                    print("Invalid option. Please select 1-4.")
 
 if __name__ == "__main__":
     Interpreter.main_menu()
